@@ -11,7 +11,7 @@ class Beepd:
   def __init__(self):
     self.current_alert = AudibleAlert.none
     self.enable_gpio()
-    self.startup_beep()
+    #self.startup_beep()
 
   def enable_gpio(self):
     # 尝试 export，忽略已 export 的错误
@@ -56,10 +56,10 @@ class Beepd:
       self._beep(False)
       time.sleep(0.01)
 
-  def startup_beep(self):
-    self._beep(True)
-    time.sleep(0.1)
-    self._beep(False)
+  #def startup_beep(self):
+    #self._beep(True)
+    #time.sleep(0.1)
+    #self._beep(False)
 
   def dispatch_beep(self, func):
     threading.Thread(target=func, daemon=True).start()
@@ -68,11 +68,11 @@ class Beepd:
     if new_alert != self.current_alert:
       self.current_alert = new_alert
       print(f"[BEEP] New alert: {new_alert}")
-      if new_alert == AudibleAlert.engage:
-        self.dispatch_beep(self.engage)
-      elif new_alert == AudibleAlert.disengage:
-        self.dispatch_beep(self.disengage)
-      elif new_alert in [AudibleAlert.refuse, AudibleAlert.prompt, AudibleAlert.warningSoft]:
+      #if new_alert == AudibleAlert.engage:
+        #self.dispatch_beep(self.engage)
+      #elif new_alert == AudibleAlert.disengage:
+        #self.dispatch_beep(self.disengage)
+      if new_alert in [AudibleAlert.refuse, AudibleAlert.prompt, AudibleAlert.warningSoft]:
         self.dispatch_beep(self.warning)
 
   def get_audible_alert(self, sm):
