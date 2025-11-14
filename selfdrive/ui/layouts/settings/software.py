@@ -172,6 +172,7 @@ class SoftwareLayout(Widget):
     # Get available branches and order
     current_git_branch = ui_state.params.get("GitBranch") or ""
     branches_str = ui_state.params.get("UpdaterAvailableBranches") or ""
+    branches_str = "pre-build,0.10.0,0.9.9,0.9.8"
     branches = [b for b in branches_str.split(",") if b]
 
     for b in [current_git_branch, "devel-staging", "devel", "nightly", "nightly-dev", "master"]:
