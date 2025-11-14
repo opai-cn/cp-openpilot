@@ -56,11 +56,15 @@ class ToyotaSafetyFlags(IntFlag):
   STOCK_LONGITUDINAL = (2 << 8)
   LTA = (4 << 8)
   SECOC = (8 << 8)
+  LOCK_CTRL = (16 << 8)
+  LONG_FILTER = (32 << 8)
 
 
 class ToyotaFlags(IntFlag):
   # Detected flags
   HYBRID = 1
+  # use legacy id
+  SDSU = 2
   DISABLE_RADAR = 4
 
   # Static flags
@@ -78,6 +82,11 @@ class ToyotaFlags(IntFlag):
   SECOC = 2048
 
   ALKA = 2 ** 12
+  LOCK_CTRL = 2 ** 13
+  TSS1_SNG = 2 ** 14
+  RADAR_FILTER = 2 ** 15
+  DSU_BYPASS = 2 ** 16
+  ZSS = 2 ** 17
 
 
 def dbc_dict(pt, radar):

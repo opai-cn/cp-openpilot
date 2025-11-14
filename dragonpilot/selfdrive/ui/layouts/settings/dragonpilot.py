@@ -48,8 +48,50 @@ class DragonpilotLayout(Widget):
   def _toyota_toggles(self):
     self._toggles["title_toyota"] = simple_item(title=lambda: tr("### Toyota / Lexus ###"))
 
+    self._toggles["dp_toyota_door_auto_lock_unlock"] = toggle_item(
+      title=lambda: tr("Door Auto Lock/Unlock"),
+      description=lambda: tr("Enable openpilot to auto-lock doors above 20 km/h and auto-unlock when shifting to Park."),
+      initial_state=self._params.get_bool("dp_toyota_door_auto_lock_unlock"),
+      callback=lambda val: self._params.put_bool("dp_toyota_door_auto_lock_unlock", val),
+    )
+
+    self._toggles["dp_toyota_tss1_sng"] = toggle_item(
+      title=lambda: tr("Enable TSS1 SnG Mod"),
+      description=lambda: "",
+      initial_state=self._params.get_bool("dp_toyota_tss1_sng"),
+      callback=lambda val: self._params.put_bool("dp_toyota_tss1_sng", val),
+    )
+
+    self._toggles["dp_toyota_stock_lon"] = toggle_item(
+      title=lambda: tr("Use Stock Longitudinal Control"),
+      description=lambda: "",
+      initial_state=self._params.get_bool("dp_toyota_stock_lon"),
+      callback=lambda val: self._params.put_bool("dp_toyota_stock_lon", val),
+    )
+
   def _vag_toggles(self):
     self._toggles["title_vag"] = simple_item(title=lambda: tr("### VAG ###"))
+
+    self._toggles["dp_vag_a0_sng"] = toggle_item(
+      title=lambda: tr("MQB A0 SnG Mod"),
+      description=lambda: "",
+      initial_state=self._params.get_bool("dp_vag_a0_sng"),
+      callback=lambda val: self._params.put_bool("dp_vag_a0_sng", val),
+    )
+
+    self._toggles["dp_vag_pq_steering_patch"] = toggle_item(
+      title=lambda: tr("PQ Steering Patch"),
+      description=lambda: "",
+      initial_state=self._params.get_bool("dp_vag_pq_steering_patch"),
+      callback=lambda val: self._params.put_bool("dp_vag_pq_steering_patch", val),
+    )
+
+    self._toggles["dp_vag_avoid_eps_lockout"] = toggle_item(
+      title=lambda: tr("Avoid EPS Lockout"),
+      description=lambda: "",
+      initial_state=self._params.get_bool("dp_vag_avoid_eps_lockout"),
+      callback=lambda val: self._params.put_bool("dp_vag_avoid_eps_lockout", val),
+    )
 
   def _mazda_toggles(self):
     self._toggles["title_mazda"] = simple_item(title=lambda: tr("### Mazda ###"))
