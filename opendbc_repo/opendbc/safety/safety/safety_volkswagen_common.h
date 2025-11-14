@@ -28,6 +28,15 @@ bool volkswagen_resume_button_prev = false;
 #define MSG_LDW_02           0x397   // TX by OP, Lane line recognition and text alerts
 #define MSG_MOTOR_14         0x3BE   // RX from ECU, for brake switch status
 
+// MEB platform specific message IDs
+#define MSG_ESC_51           0x0FC   // RX from ESC, for wheel speeds (MEB)
+#define MSG_Motor_51         0x10B   // RX from Motor, for ACC status (MEB)
+#define MSG_QFK_01           0x13D   // RX from QFK, for curvature (MEB)
+#define MSG_Motor_54         0x14C   // RX from Motor, for accelerator pedal (MEB)
+#define MSG_EA_01            0x1A4   // TX by OP, EA control (MEB)
+#define MSG_EA_02            0x1F0   // TX by OP, EA HUD (MEB)
+#define MSG_HCA_03           0x303   // TX by OP, Heading Control Assist curvature (MEB)
+
 
 static uint32_t volkswagen_mqb_meb_get_checksum(const CANPacket_t *to_push) {
   return (uint8_t)GET_BYTE(to_push, 0);

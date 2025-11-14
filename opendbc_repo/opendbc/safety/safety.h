@@ -19,6 +19,7 @@
 #include "safety/safety_nissan.h"
 #include "safety/safety_volkswagen_mqb.h"
 #include "safety/safety_volkswagen_pq.h"
+#include "safety/safety_volkswagen_meb.h"
 #include "safety/safety_elm327.h"
 #include "safety/safety_body.h"
 
@@ -413,6 +414,7 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
     {SAFETY_CHRYSLER, &chrysler_hooks},
     {SAFETY_SUBARU, &subaru_hooks},
     {SAFETY_VOLKSWAGEN_MQB, &volkswagen_mqb_hooks},
+    {SAFETY_VOLKSWAGEN_MEB, &volkswagen_meb_hooks},
     {SAFETY_NISSAN, &nissan_hooks},
     {SAFETY_NOOUTPUT, &nooutput_hooks},
     {SAFETY_HYUNDAI_LEGACY, &hyundai_legacy_hooks},
@@ -658,7 +660,7 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const TorqueStee
 
   bool aol_allowed = true;
   if (controls_allowed) acc_main_on = controls_allowed;
-  
+
   if (controls_allowed || aol_allowed) {
     // *** global torque limit check ***
     violation |= max_limit_check(desired_torque, limits.max_steer, -limits.max_steer);
