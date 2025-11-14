@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum, IntFlag, StrEnum
 
 from opendbc.car import Bus, CanBusBase, CarSpecs, DbcDict, PlatformConfig, Platforms, structs, uds
-from opendbc.can.parser import CANDefine
+from opendbc.can.can_define import CANDefine
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Column, \
                                                      Device
@@ -21,67 +21,17 @@ Button = namedtuple('Button', ['event_type', 'can_addr', 'can_msg', 'values'])
 class CanBus(CanBusBase):
   def __init__(self, CP=None, fingerprint=None) -> None:
     super().__init__(CP, fingerprint)
-    # MEB platform detection and bus mapping
-    # Detect MEB platform from CP flags or fingerprint (MEB-specific CAN-FD messages)
-    is_meb = False
-    meb_radar_bus = None
-    meb_main_bus = None
-
-    if CP is not None:
-      is_meb = bool(CP.flags & VolkswagenFlags.MEB)
-    elif fingerprint is not None:
-      # MEB platform has unique CAN-FD messages: ESC_51 (0x0FC, 48 bytes), Motor_51 (0x10B, 32 bytes)
-      # Check for MEB-specific messages in fingerprint and find which buses they're on
-      for bus_num, bus_msgs in fingerprint.items():
-        if 0x0FC in bus_msgs and bus_msgs[0x0FC] == 48:  # ESC_51, 48-byte CAN-FD
-          is_meb = True
-          if meb_main_bus is None:
-            meb_main_bus = bus_num  # ESC_51 is on main bus
-        if 0x10B in bus_msgs and bus_msgs[0x10B] == 32:  # Motor_51, 32-byte CAN-FD
-          is_meb = True
-          if meb_main_bus is None:
-            meb_main_bus = bus_num  # Motor_51 is on main bus
-        if 0x300 in bus_msgs and bus_msgs[0x300] == 48:  # MEB_ACC_01, 48-byte CAN-FD
-          is_meb = True
-          if meb_radar_bus is None:
-            meb_radar_bus = bus_num  # MEB_ACC_01 is on radar bus
-
-    if is_meb:
-      # For MEB platform, use detected buses or fall back to offset-based calculation
-      # If we detected specific buses from fingerprint, use them
-      # Otherwise, use offset-based calculation (which works for both single and multi-panda)
-      if meb_radar_bus is not None:
-        self._meb_radar = meb_radar_bus
-      else:
-        # Fall back to offset + 1 (typically bus 1 for single panda, bus 5 for second panda)
-        self._meb_radar = self.offset + 1
-
-      if meb_main_bus is not None:
-        self._meb_main = meb_main_bus
-      else:
-        # Fall back to offset (typically bus 0 for single panda, bus 4 for second panda)
-        self._meb_main = self.offset
-    else:
-      self._meb_main = None
-      self._meb_radar = None
 
   @property
   def main(self) -> int:
-    if self._meb_main is not None:
-      return self._meb_main
     return self.offset
 
   @property
   def aux(self) -> int:
-    if self._meb_radar is not None:
-      return self._meb_radar
     return self.offset + 1
 
   @property
   def camera(self) -> int:
-    if self._meb_main is not None:
-      # For MEB, camera bus is typically main bus + 2, but we use main bus for camera messages
-      return self._meb_main
     return self.offset + 2
 
 

@@ -46,11 +46,7 @@ class CarState(CarStateBase):
   def update(self, can_parsers) -> structs.CarState:
     pt_cp = can_parsers[Bus.pt]
     cam_cp = can_parsers[Bus.cam]
-    # For MEB platform, radar messages are on Bus.radar if available, otherwise use pt_cp or cam_cp
-    if self.CP.flags & VolkswagenFlags.MEB and Bus.radar in can_parsers:
-      ext_cp = can_parsers[Bus.radar]
-    else:
-      ext_cp = pt_cp if self.CP.networkLocation == NetworkLocation.fwdCamera else cam_cp
+    ext_cp = pt_cp if self.CP.networkLocation == NetworkLocation.fwdCamera else cam_cp
 
     if self.CP.flags & VolkswagenFlags.PQ:
       return self.update_pq(pt_cp, cam_cp, ext_cp)
@@ -433,35 +429,28 @@ class CarState(CarStateBase):
       ("Motor_51", 50),           #
     ]
 
+    if CP.networkLocation == NetworkLocation.fwdCamera:
+      # Radars are here on CanBus.main
+      pt_messages += MebExtraSignals.fwd_radar_messages
+      if CP.enableBsm:
+        pt_messages += MebExtraSignals.bsm_radar_messages
+
     cam_messages = [
       # sig_address, frequency
       ("LDW_02", 10),     # From R242 Driver assistance camera
       ("TA_01", 10),      # From R242 Driver assistance camera (Travel Assist)
     ]
 
-    # MEB platform has radar messages on a separate bus
-    radar_messages = []
-    if CP.networkLocation == NetworkLocation.fwdCamera:
-      # Radars are on a separate bus (typically bus 4 or CanBus.aux)
-      radar_messages += MebExtraSignals.fwd_radar_messages
-      if CP.enableBsm:
-        radar_messages += MebExtraSignals.bsm_radar_messages
-    elif CP.networkLocation == NetworkLocation.gateway:
+    if CP.networkLocation == NetworkLocation.gateway:
       # Radars are here on CanBus.camera
       cam_messages += MebExtraSignals.fwd_radar_messages
       if CP.enableBsm:
         cam_messages += MebExtraSignals.bsm_radar_messages
 
-    parsers = {
+    return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, CanBus(CP).main),
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], cam_messages, CanBus(CP).camera),
     }
-
-    # Add radar parser if radar messages are defined and DBC has radar bus
-    if radar_messages and Bus.radar in DBC[CP.carFingerprint]:
-      parsers[Bus.radar] = CANParser(DBC[CP.carFingerprint][Bus.radar], radar_messages, CanBus(CP).aux)
-
-    return parsers
 
 
 class MqbExtraSignals:

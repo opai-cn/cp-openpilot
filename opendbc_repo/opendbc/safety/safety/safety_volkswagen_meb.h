@@ -37,7 +37,7 @@ static void volkswagen_meb_rx_hook(const CANPacket_t *msg) {
 
     // Update in-motion state by sampling wheel speeds
     if (addr == MSG_ESC_51) {
-      // ESC_51 is a 48-byte CAN-FD message, use pointer access to avoid compiler warnings
+      // ESC_51 is a 48-byte CAN-FD message, use pointer access for bytes 8-15
       if (GET_LEN(msg) >= 16) {
         const uint8_t *data_ptr = (const uint8_t *)msg->data;
         uint32_t fl = ((uint32_t)data_ptr[8] | ((uint32_t)data_ptr[9] << 8));
