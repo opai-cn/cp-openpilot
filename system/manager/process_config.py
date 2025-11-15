@@ -54,6 +54,11 @@ def always_run(started: bool, params: Params, CP: car.CarParams) -> bool:
 def only_onroad(started: bool, params: Params, CP: car.CarParams) -> bool:
   return started
 
+def card_always_run(started: bool, params: Params, CP: car.CarParams) -> bool:
+  # card must always run to handle initial car fingerprinting
+  # even before ignition is detected (needed for VW MEB platform)
+  return True
+
 def only_offroad(started: bool, params: Params, CP: car.CarParams) -> bool:
   return not started
 
@@ -112,7 +117,7 @@ procs = [
   PythonProcess("controlsd", "selfdrive.controls.controlsd", and_(not_joystick, iscar)),
   PythonProcess("joystickd", "tools.joystick.joystickd", or_(joystick, notcar)),
   PythonProcess("selfdrived", "selfdrive.selfdrived.selfdrived", only_onroad),
-  PythonProcess("card", "selfdrive.car.card", only_onroad),
+  PythonProcess("card", "selfdrive.car.card", card_always_run),
   PythonProcess("deleter", "system.loggerd.deleter", always_run),
   PythonProcess("dmonitoringd", "selfdrive.monitoring.dmonitoringd", enable_dm, enabled=(WEBCAM or not PC)),
   PythonProcess("qcomgpsd", "system.qcomgpsd.qcomgpsd", qcomgps, enabled=TICI),
