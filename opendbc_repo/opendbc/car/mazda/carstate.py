@@ -25,6 +25,10 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
+    # 初始化巡航按钮状态
+    self.cruise_buttons = Buttons.NONE
+    self.prev_cruise_buttons = Buttons.NONE
+
     # 马自达车道线融合相关变量
     self.external_fusion_left_lane = -1
     self.external_fusion_right_lane = -1
