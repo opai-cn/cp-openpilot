@@ -141,6 +141,8 @@ procs = [
   PythonProcess("fleet_manager", "selfdrive.frogpilot.fleetmanager.fleet_manager", check_fleet),
   PythonProcess("carrot_man", "selfdrive.carrot.carrot_man", always_run),#, enabled=not PC),
   PythonProcess("xiaoge_data", "selfdrive.carrot.xiaoge_data", check_fleet),
+  PythonProcess("lane_line_mazda", "selfdrive.carrot.lane_line_mazda", only_onroad),
+
   #PythonProcess("xiaoge_sentryd", "selfdrive.carrot.xiaoge_sentryd", only_offroad),
   #PythonProcess("xiaoge_web", "selfdrive.carrot.xiaoge_web", always_run),
 
