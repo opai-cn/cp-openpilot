@@ -11,16 +11,11 @@ import cereal.messaging as messaging
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.params import Params
 from openpilot.selfdrive.modeld.lane_line_detector import LaneLineDetector
-from openpilot.common.realtime import set_realtime_priority
 
 
 def main():
     """车道线检测服务主循环"""
-    # 设置实时优先级
-    try:
-        set_realtime_priority(2)
-    except Exception:
-        pass
+    # 注意：不设置实时优先级，因为这是非关键服务，避免影响系统稳定性
 
     cloudlog.info("Lane line detection service for Mazda starting...")
 
