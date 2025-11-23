@@ -3,6 +3,7 @@ from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.interfaces import CarStateBase
 from opendbc.car.mazda.values import DBC, LKAS_LIMITS, MazdaFlags, Buttons
+from openpilot.common.params import Params
 
 ButtonType = structs.CarState.ButtonEvent.Type
 BUTTONS_DICT = {Buttons.SET_PLUS: ButtonType.accelCruise, Buttons.SET_MINUS: ButtonType.decelCruise,
@@ -28,6 +29,9 @@ class CarState(CarStateBase):
     self.external_fusion_left_lane = -1
     self.external_fusion_right_lane = -1
     self.fusion_enabled = False
+
+    # 添加 Params 用于读取 CV 检测结果
+    self.params = Params()
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -126,21 +130,36 @@ class CarState(CarStateBase):
         ret.leftLaneLine = self.external_fusion_left_lane
         ret.rightLaneLine = self.external_fusion_right_lane
     else:
-        # 如果没有外部融合，使用原始逻辑
-        # 根据状态设置 leftLaneLine 和 rightLaneLine
-        # 由于马自达没有类型和颜色信息,只能设置基本值
-        if lane_lines_status == 2:  # 两条车道线
-            ret.leftLaneLine = 0   # 假设为虚线白色
-            ret.rightLaneLine = 0
-        elif lane_lines_status == 3:  # 只有左车道线
-            ret.leftLaneLine = 0
-            ret.rightLaneLine = -1  # 无车道线
-        elif lane_lines_status == 4:  # 只有右车道线
-            ret.leftLaneLine = -1
-            ret.rightLaneLine = 0
-        else:  # 无车道线或LKAS禁用
-            ret.leftLaneLine = -1
-            ret.rightLaneLine = -1
+        # 尝试从 Params 读取 CV 检测结果（由 lane_line_mazda 服务写入）
+        try:
+            left_type = int(self.params.get("LaneLineTypeLeft", encoding='utf8') or "-1")
+            right_type = int(self.params.get("LaneLineTypeRight", encoding='utf8') or "-1")
+
+            if left_type >= 0:
+                ret.leftLaneLine = 10 + left_type  # 10: 白色虚线, 11: 白色实线
+            else:
+                ret.leftLaneLine = -1
+
+            if right_type >= 0:
+                ret.rightLaneLine = 10 + right_type  # 10: 白色虚线, 11: 白色实线
+            else:
+                ret.rightLaneLine = -1
+        except Exception:
+            # 如果 CV 检测不可用，使用原始逻辑
+            # 根据状态设置 leftLaneLine 和 rightLaneLine
+            # 由于马自达没有类型和颜色信息,只能设置基本值
+            if lane_lines_status == 2:  # 两条车道线
+                ret.leftLaneLine = 0   # 假设为虚线白色
+                ret.rightLaneLine = 0
+            elif lane_lines_status == 3:  # 只有左车道线
+                ret.leftLaneLine = 0
+                ret.rightLaneLine = -1  # 无车道线
+            elif lane_lines_status == 4:  # 只有右车道线
+                ret.leftLaneLine = -1
+                ret.rightLaneLine = 0
+            else:  # 无车道线或LKAS禁用
+                ret.leftLaneLine = -1
+                ret.rightLaneLine = -1
 
     if ret.cruiseState.enabled:
       if not self.lkas_allowed_speed and self.acc_active_last:
